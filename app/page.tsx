@@ -89,7 +89,7 @@ export default async function Home() {
 
         {/* Desktop — unchanged from prior 2-col hero */}
         <Container className="hidden py-14 sm:py-20 lg:block">
-          <div className="grid items-center gap-10 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="grid items-center gap-10 lg:grid-cols-[0.88fr_1.12fr] xl:grid-cols-[0.82fr_1.18fr]">
             <div className="mx-auto max-w-3xl text-center lg:mx-0 lg:max-w-none lg:text-left">
               <MotionInView variants={slideRight}>
                 <div className="inline-flex items-center rounded-full bg-ss-bg-soft px-3 py-1 text-xs font-semibold text-ss-primary ring-1 ring-ss-primary/10">
@@ -125,9 +125,9 @@ export default async function Home() {
               </MotionInView>
             </div>
 
-            <div className="relative mx-auto w-full max-w-md lg:max-w-none">
+            <div className="relative mx-auto w-full max-w-md lg:max-w-none lg:min-w-0">
               <div
-                className="pointer-events-none absolute inset-4 -z-10 rounded-[2.75rem] opacity-80"
+                className="pointer-events-none absolute inset-4 -z-10 rounded-[2.75rem] opacity-80 lg:inset-2 xl:inset-0"
                 style={{
                   boxShadow:
                     "0 0 0 1px rgba(124, 58, 237, 0.08), 0 22px 60px -14px rgba(124, 58, 237, 0.35), 0 0 100px -24px rgba(168, 85, 247, 0.3)",
@@ -139,8 +139,8 @@ export default async function Home() {
                   alt="Softsinc — premium digital tools"
                   fill
                   priority
-                  sizes="(min-width: 1024px) 480px, 100vw"
-                  className="object-contain p-4 sm:p-6 [image-rendering:auto] drop-shadow-[0_4px_28px_rgba(124,58,237,0.15)]"
+                  sizes="(min-width: 1280px) 640px, (min-width: 1024px) 52vw, 100vw"
+                  className="object-contain p-3 sm:p-5 lg:p-4 xl:p-5 [image-rendering:auto] drop-shadow-[0_4px_28px_rgba(124,58,237,0.15)]"
                 />
               </div>
             </div>

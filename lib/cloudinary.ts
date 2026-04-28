@@ -1,31 +1,56 @@
-import { v2 as cloudinary } from "cloudinary";
-
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
-const apiKey = process.env.CLOUDINARY_API_KEY;
-const apiSecret = process.env.CLOUDINARY_API_SECRET;
+import { v2 as cloudinarySdk } from "cloudinary";
 
 const PLACEHOLDER_SECRET = "PASTE_YOUR_CLOUDINARY_API_SECRET_HERE";
 
-if (!cloudName || !apiKey || !apiSecret) {
-  throw new Error(
-    "Missing Cloudinary environment variables. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET in .env.local."
-  );
+let configured = false;
+
+/**
+ * Configures the Cloudinary SDK on first use. Safe to import during `next build`
+ * when env vars are missing; callers must handle errors or use helpers below.
+ */
+export function getCloudinary() {
+  if (configured) {
+    return cloudinarySdk;
+  }
+
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+  const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+  const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new Error(
+      "Missing Cloudinary environment variables. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET (e.g. in Vercel Project → Settings → Environment Variables)."
+    );
+  }
+
+  if (apiSecret === PLACEHOLDER_SECRET) {
+    throw new Error(
+      "CLOUDINARY_API_SECRET is still the placeholder. Paste the real API secret from your Cloudinary dashboard (Settings → Access Keys)."
+    );
+  }
+
+  cloudinarySdk.config({
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+    secure: true,
+  });
+  configured = true;
+  return cloudinarySdk;
 }
 
-if (apiSecret === PLACEHOLDER_SECRET) {
-  throw new Error(
-    "CLOUDINARY_API_SECRET is still the placeholder. Open .env.local and paste the real API secret from your Cloudinary dashboard (Settings → Access Keys)."
+/** True when all Cloudinary env vars are present (no network call). */
+export function isCloudinaryEnvReady(): boolean {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+  const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+  const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+  return Boolean(
+    cloudName &&
+      apiKey &&
+      apiSecret &&
+      apiSecret !== PLACEHOLDER_SECRET
   );
 }
-
-cloudinary.config({
-  cloud_name: cloudName,
-  api_key: apiKey,
-  api_secret: apiSecret,
-  secure: true,
-});
-
-export { cloudinary };
 
 export type UploadedImage = {
   secure_url: string;
@@ -40,6 +65,8 @@ export async function uploadImageBuffer(
   buffer: Buffer,
   folder = "softsinc/reviews"
 ): Promise<UploadedImage> {
+  const cloudinary = getCloudinary();
+
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {

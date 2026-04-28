@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
 import { isAdminRequest } from "@/lib/adminAuth";
-import { cloudinary } from "@/lib/cloudinary";
+import { getCloudinary, isCloudinaryEnvReady } from "@/lib/cloudinary";
 import { connectDB } from "@/lib/mongodb";
 import { Review } from "@/models/Review";
 
@@ -33,11 +33,15 @@ export async function DELETE(
 
     // Best-effort: remove the Cloudinary asset if the image URL is from Cloudinary.
     const imageUrl = review.image;
-    if (typeof imageUrl === "string" && imageUrl.includes("res.cloudinary.com")) {
+    if (
+      isCloudinaryEnvReady() &&
+      typeof imageUrl === "string" &&
+      imageUrl.includes("res.cloudinary.com")
+    ) {
       const publicId = extractCloudinaryPublicId(imageUrl);
       if (publicId) {
         try {
-          await cloudinary.uploader.destroy(publicId, { invalidate: true });
+          await getCloudinary().uploader.destroy(publicId, { invalidate: true });
         } catch {
           // Non-fatal: continue with DB delete even if the asset removal fails.
         }

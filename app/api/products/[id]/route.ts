@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 
 import { isAdminRequest } from "@/lib/adminAuth";
-import { cloudinary } from "@/lib/cloudinary";
+import { getCloudinary, isCloudinaryEnvReady } from "@/lib/cloudinary";
 import { connectDB } from "@/lib/mongodb";
 import { ProductModel } from "@/models/Product";
 import { normalizeBody } from "../route";
@@ -141,6 +141,11 @@ export async function DELETE(request: Request, { params }: RouteCtx) {
 }
 
 async function destroyCloudinaryUrls(urls: string[]): Promise<void> {
+  if (!isCloudinaryEnvReady()) {
+    console.warn("[products] Skipping Cloudinary cleanup: env not configured");
+    return;
+  }
+  const cloudinary = getCloudinary();
   const seen = new Set<string>();
   for (const url of urls) {
     if (!url || !url.includes("res.cloudinary.com")) continue;

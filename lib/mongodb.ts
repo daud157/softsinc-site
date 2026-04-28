@@ -1,13 +1,5 @@
 import mongoose, { type Mongoose } from "mongoose";
 
-const MONGODB_URI = process.env.MONGODB_URI;
-
-if (!MONGODB_URI) {
-  throw new Error(
-    "Missing MONGODB_URI environment variable. Add it to .env.local."
-  );
-}
-
 type MongooseCache = {
   conn: Mongoose | null;
   promise: Promise<Mongoose> | null;
@@ -24,11 +16,19 @@ if (!global._softsincMongoose) {
   global._softsincMongoose = cached;
 }
 
+/** Safe to import during `next build` when `MONGODB_URI` is unset. */
 export async function connectDB(): Promise<Mongoose> {
+  const uri = process.env.MONGODB_URI?.trim();
+  if (!uri) {
+    throw new Error(
+      "Missing MONGODB_URI environment variable. Set it in .env.local or Vercel Project → Settings → Environment Variables."
+    );
+  }
+
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGODB_URI as string, {
+    cached.promise = mongoose.connect(uri, {
       bufferCommands: false,
     });
   }

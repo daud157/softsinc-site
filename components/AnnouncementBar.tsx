@@ -1,8 +1,3 @@
-import Link from "next/link";
-
-import { Container } from "@/components/Container";
-import { IconStars } from "@/components/icons/HomeIcons";
-import { WHATSAPP_LINK } from "@/lib/site";
 import { cn } from "@/lib/cn";
 
 export function AnnouncementBar() {

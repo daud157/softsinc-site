@@ -1,0 +1,252 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+  /* Softsinc palette */
+  --ss-primary: #7c3aed;
+  --ss-accent: #a855f7;
+  --ss-bg: #faf9ff;
+  --ss-bg-soft: #f3e8ff;
+  --ss-text: #111827;
+
+  --background: var(--ss-bg);
+  --foreground: var(--ss-text);
+}
+
+/* Dark theme — same tokens, shifted for contrast on violet brand */
+html.dark {
+  color-scheme: dark;
+  --ss-primary: #a78bfa;
+  --ss-accent: #c084fc;
+  --ss-bg: #0b0912;
+  --ss-bg-soft: #161022;
+  --ss-text: #f4f4f5;
+
+  --background: var(--ss-bg);
+  --foreground: var(--ss-text);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-ss-primary: var(--ss-primary);
+  --color-ss-accent: var(--ss-accent);
+  --color-ss-bg: var(--ss-bg);
+  --color-ss-bg-soft: var(--ss-bg-soft);
+  --color-ss-text: var(--ss-text);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 0.35s ease,
+    color 0.35s ease;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--ss-primary) 18%, white);
+}
+
+html.dark ::selection {
+  background: color-mix(in srgb, var(--ss-primary) 28%, transparent);
+}
+
+button,
+a,
+label,
+input[type="radio"],
+input[type="checkbox"] {
+  touch-action: manipulation;
+}
+
+@keyframes ss-hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ss-hero-float {
+    animation: none;
+  }
+}
+
+.ss-hero-float {
+  animation: ss-hero-float 3.5s ease-in-out infinite;
+}
+
+/* ---------------------------------------------------------------- */
+/* Rich-text content authored in /admin (plan customContent, etc.). */
+/* Used both inside the contentEditable editor and on the public    */
+/* product page so the preview matches the final output exactly.    */
+/* ---------------------------------------------------------------- */
+.prose-rich {
+  color: color-mix(in srgb, var(--ss-text) 90%, transparent);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+.prose-rich :where(p, ul, ol, blockquote, h1, h2, h3, h4, hr, pre) {
+  margin-top: 0.85em;
+  margin-bottom: 0.85em;
+}
+.prose-rich :where(p, ul, ol, blockquote, h1, h2, h3, h4, hr, pre):first-child {
+  margin-top: 0;
+}
+.prose-rich :where(p, ul, ol, blockquote, h1, h2, h3, h4, hr, pre):last-child {
+  margin-bottom: 0;
+}
+.prose-rich h1,
+.prose-rich h2,
+.prose-rich h3,
+.prose-rich h4 {
+  color: var(--ss-text);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+.prose-rich h1 {
+  font-size: 1.6rem;
+  margin-top: 1.4em;
+}
+.prose-rich h2 {
+  font-size: 1.35rem;
+  margin-top: 1.4em;
+}
+.prose-rich h3 {
+  font-size: 1.12rem;
+  margin-top: 1.2em;
+}
+.prose-rich h4 {
+  font-size: 1rem;
+  margin-top: 1.1em;
+}
+.prose-rich strong,
+.prose-rich b {
+  color: var(--ss-text);
+  font-weight: 700;
+}
+.prose-rich em,
+.prose-rich i {
+  font-style: italic;
+}
+.prose-rich u {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+.prose-rich s,
+.prose-rich del {
+  text-decoration: line-through;
+  color: color-mix(in srgb, var(--ss-text) 55%, transparent);
+}
+.prose-rich a {
+  color: var(--ss-primary);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--ss-primary) 35%, transparent);
+  text-underline-offset: 3px;
+}
+.prose-rich a:hover {
+  text-decoration-color: var(--ss-primary);
+}
+.prose-rich ul,
+.prose-rich ol {
+  padding-left: 1.4em;
+}
+.prose-rich ul {
+  list-style: disc;
+}
+.prose-rich ol {
+  list-style: decimal;
+}
+.prose-rich li {
+  margin: 0.3em 0;
+}
+.prose-rich li::marker {
+  color: color-mix(in srgb, var(--ss-primary) 70%, transparent);
+}
+.prose-rich blockquote {
+  border-left: 3px solid color-mix(in srgb, var(--ss-primary) 35%, transparent);
+  background: color-mix(in srgb, var(--ss-bg-soft) 60%, transparent);
+  padding: 0.75em 1em;
+  border-radius: 0.75rem;
+  color: color-mix(in srgb, var(--ss-text) 80%, transparent);
+}
+html.dark .prose-rich blockquote {
+  background: color-mix(in srgb, var(--ss-bg-soft) 45%, transparent);
+}
+.prose-rich code {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  background: color-mix(in srgb, var(--ss-bg-soft) 70%, transparent);
+  border-radius: 0.4rem;
+  padding: 0.1em 0.4em;
+}
+.prose-rich pre {
+  background: color-mix(in srgb, var(--ss-text) 5%, transparent);
+  padding: 0.9em 1em;
+  border-radius: 0.75rem;
+  overflow-x: auto;
+}
+.prose-rich pre code {
+  background: transparent;
+  padding: 0;
+}
+.prose-rich hr {
+  border: none;
+  border-top: 1px solid color-mix(in srgb, var(--ss-text) 12%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Keyboard users: jump past nav/announcement into main content */
+.skip-link {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+.skip-link:focus {
+  position: fixed;
+  left: 1rem;
+  top: 1rem;
+  z-index: 100;
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0.65rem 1rem;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+  border-radius: 9999px;
+  background: var(--ss-primary);
+  color: #fff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 10px 30px -12px rgba(17, 24, 39, 0.45);
+  outline: none;
+}
+.skip-link:focus-visible {
+  box-shadow:
+    0 10px 30px -12px rgba(17, 24, 39, 0.45),
+    0 0 0 3px color-mix(in srgb, var(--ss-primary) 35%, transparent);
+}

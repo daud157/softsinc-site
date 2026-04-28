@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <rect width="1200" height="900" fill="#ffffff"/>
+  <g fill="#a855f7" opacity="0.10">
+    <circle cx="320" cy="280" r="230"/>
+    <circle cx="900" cy="610" r="260"/>
+  </g>
+  <g font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial" text-anchor="middle">
+    <text x="600" y="420" font-size="72" font-weight="800" fill="#0b1633">VPN Services</text>
+    <text x="600" y="500" font-size="24" font-weight="600" fill="#0b1633" opacity="0.65">Secure browsing " Multi-device</text>
+  </g>
+</svg>

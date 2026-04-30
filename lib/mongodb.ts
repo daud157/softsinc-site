@@ -30,6 +30,10 @@ export async function connectDB(): Promise<Mongoose> {
   if (!cached.promise) {
     cached.promise = mongoose.connect(uri, {
       bufferCommands: false,
+      /** Prefer IPv4 when IPv6/DNS is flaky (common cause of `queryTxt ETIMEOUT`). */
+      family: 4,
+      serverSelectionTimeoutMS: 20_000,
+      socketTimeoutMS: 45_000,
     });
   }
 

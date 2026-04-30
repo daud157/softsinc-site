@@ -72,10 +72,9 @@ export async function uploadImageBuffer(
       {
         folder,
         resource_type: "image",
-        transformation: [
-          { quality: "auto:good" },
-          { fetch_format: "auto" },
-        ],
+        // Do not use fetch_format "auto" here: it re-encodes before storage and can
+        // pick JPEG for PNG logos, which strips transparency (white background).
+        transformation: [{ quality: "auto:good" }],
       },
       (error, result) => {
         if (error || !result) {

@@ -42,7 +42,7 @@ function AdminLoginForm() {
   }
 
   return (
-    <Container className="flex min-h-[70vh] flex-col items-center justify-center py-12">
+    <Container className="relative z-[1] flex min-h-[70vh] flex-col items-center justify-center py-12 pb-28 sm:pb-12">
       <Card className="w-full max-w-md p-8 shadow-lg ring-1 ring-black/5">
         <div className="text-center">
           <div className="text-[10px] font-bold uppercase tracking-wider text-ss-primary">

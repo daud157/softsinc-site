@@ -1,11 +1,14 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { Container } from "@/components/Container";
+import { cloudinaryBrandingLogoDeliveryUrl } from "@/lib/cloudinaryBrandingUrl";
 import { loadServices } from "@/lib/loadServices";
 import { NAV_LINKS, WHATSAPP_LINK } from "@/lib/site";
 
-export async function Footer() {
+export async function Footer({ siteLogoUrl }: { siteLogoUrl?: string | null }) {
   const services = await loadServices();
+  const logoUrl = siteLogoUrl?.trim() || undefined;
   // Show up to 6 footer links; prefer popular products first.
   const topServices = [...services]
     .sort((a, b) => Number(Boolean(b.popular)) - Number(Boolean(a.popular)))
@@ -16,7 +19,20 @@ export async function Footer() {
       <Container className="py-14">
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           <div className="sm:col-span-2 lg:col-span-1">
-            <div className="text-base font-semibold tracking-tight text-ss-text">Softsinc</div>
+            <div className="flex flex-wrap items-center gap-4">
+              {logoUrl ? (
+                <span className="relative z-[1] block h-10 w-28 shrink-0 -translate-x-7 overflow-visible bg-transparent md:-translate-x-10 lg:-translate-x-12">
+                  <Image
+                    src={cloudinaryBrandingLogoDeliveryUrl(logoUrl)}
+                    alt="Softsinc"
+                    fill
+                    sizes="(max-width: 767px) 220px, 360px"
+                    className="origin-left scale-[1.58] object-contain object-left drop-shadow-[0_1px_2px_rgba(0,0,0,0.12)] md:scale-[2.08] lg:scale-[2.22] xl:scale-[2.35] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.35)]"
+                  />
+                </span>
+              ) : null}
+              <div className="text-base font-semibold tracking-tight text-ss-text">Softsinc</div>
+            </div>
             <p className="mt-3 max-w-md text-sm leading-6 text-ss-text/70">
               Premium digital tools and subscriptions at affordable prices, with
               reliable support and warranty.

@@ -8,7 +8,7 @@ import { cn } from "@/lib/cn";
 
 export function FloatingWhatsApp({ className }: { className?: string }) {
   const pathname = usePathname();
-  if (pathname?.startsWith("/product/")) {
+  if (pathname?.startsWith("/product/") || pathname?.startsWith("/admin")) {
     return null;
   }
 

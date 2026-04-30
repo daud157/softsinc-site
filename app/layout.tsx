@@ -7,6 +7,7 @@ import { Navbar } from "@/components/Navbar";
 import { BackToTop } from "@/components/BackToTop";
 import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { PageLoad } from "@/components/PageLoad";
+import { getSiteSettings } from "@/lib/loadSiteSettings";
 import { AppProviders } from "@/components/providers/AppProviders";
 
 export const metadata: Metadata = {
@@ -15,7 +16,7 @@ export const metadata: Metadata = {
     template: "%s — Softsinc",
   },
   description:
-    "Premium digitals subscriptions and tools at affordable prices. Trusted access with reliable support and warranty.",
+    "Premium digital subscriptions and tools at affordable prices. Trusted access with reliable support and warranty.",
   metadataBase: new URL("https://softsinc.com"),
   openGraph: {
     title: "Softsinc — Premium Digital Tools",
@@ -71,11 +72,14 @@ const SITE_JSON_LD = JSON.stringify({
   ],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { siteLogoUrl } = await getSiteSettings();
+  const logo = siteLogoUrl || undefined;
+
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col bg-ss-bg text-ss-text">
@@ -92,12 +96,12 @@ export default function RootLayout({
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: SITE_JSON_LD }}
           />
-          <Navbar />
+          <Navbar siteLogoUrl={logo} />
           <AnnouncementBar />
           <main id="main-content" className="flex-1 scroll-mt-16 pb-24 sm:pb-0">
             <PageLoad>{children}</PageLoad>
           </main>
-          <Footer />
+          <Footer siteLogoUrl={logo} />
           <BackToTop />
           <FloatingWhatsApp />
         </AppProviders>

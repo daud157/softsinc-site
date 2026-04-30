@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { isAdminRequest } from "@/lib/adminAuth";
 import { connectDB } from "@/lib/mongodb";
+import { nextResponseForMongoOr500 } from "@/lib/mongoHttpError";
 import { sanitizeHtml } from "@/lib/sanitizeHtml";
 import { ProductModel, PRODUCT_CATEGORIES } from "@/models/Product";
 
@@ -153,8 +154,7 @@ export async function GET() {
     return NextResponse.json({ products }, { status: 200 });
   } catch (err) {
     console.error("[api/products GET] error:", err);
-    const message = err instanceof Error ? err.message : "Failed to load products";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return nextResponseForMongoOr500(err, "Failed to load products");
   }
 }
 
@@ -198,7 +198,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ product }, { status: 201 });
   } catch (err) {
     console.error("[api/products POST] error:", err);
-    const message = err instanceof Error ? err.message : "Failed to create product";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return nextResponseForMongoOr500(err, "Failed to create product");
   }
 }

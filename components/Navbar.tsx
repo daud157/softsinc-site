@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -8,6 +9,7 @@ import { useEffect, useState } from "react";
 import { Container } from "@/components/Container";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
+import { cloudinaryBrandingLogoDeliveryUrl } from "@/lib/cloudinaryBrandingUrl";
 import { cn } from "@/lib/cn";
 import { NAV_LINKS, WHATSAPP_LINK } from "@/lib/site";
 
@@ -60,7 +62,69 @@ function WhatsAppGlyph({ className }: { className?: string }) {
   );
 }
 
-export function Navbar() {
+function NavbarBrandMark({
+  siteLogoUrl,
+  variant,
+}: {
+  siteLogoUrl?: string | null;
+  variant: "default" | "product";
+}) {
+  if (siteLogoUrl) {
+    return (
+      <span
+        className={cn(
+          // Fixed slot keeps layout stable; scale() draws larger. Translate nudges paint only (no reflow).
+          "relative isolate z-[1] h-10 w-[min(7.5rem,36vw)] shrink-0 overflow-visible bg-transparent",
+          variant === "product"
+            ? "-translate-x-7 rounded-full md:-translate-x-5 lg:-translate-x-6"
+            : "-translate-x-7 rounded-xl md:-translate-x-11 lg:-translate-x-14 xl:-translate-x-[4rem]",
+        )}
+      >
+        <Image
+          src={cloudinaryBrandingLogoDeliveryUrl(siteLogoUrl)}
+          alt="Softsinc"
+          fill
+          sizes="(max-width: 767px) 220px, 360px"
+          className={cn(
+            "object-contain object-center p-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.18)] dark:drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]",
+            variant === "product"
+              ? "origin-center scale-[1.58] md:origin-left md:scale-[2.08] lg:scale-[2.22] xl:scale-[2.35]"
+              : "origin-left scale-[1.58] md:scale-[2.08] lg:scale-[2.22] xl:scale-[2.35]"
+          )}
+        />
+      </span>
+    );
+  }
+  if (variant === "product") {
+    return (
+      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-ss-primary to-ss-accent text-[10px] font-bold text-white shadow-sm">
+        si
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7C3AED] to-[#A855F7] text-[10px] font-bold text-white shadow-sm ring-1 ring-[#7C3AED]/20">
+      S
+    </span>
+  );
+}
+
+/** Site wordmark next to the logo — gradient + weight aligned with hero branding */
+function NavbarWordmark({ compact }: { compact?: boolean }) {
+  return (
+    <span
+      className={cn(
+        "truncate bg-gradient-to-r from-[#7C3AED] via-[#8B5CF6] to-[#A855F7] bg-clip-text font-extrabold tracking-tight text-transparent",
+        "dark:from-ss-primary dark:via-purple-400 dark:to-ss-accent",
+        compact ? "text-sm sm:text-base md:text-lg" : "text-[17px] leading-none sm:text-lg md:text-xl lg:text-2xl"
+      )}
+    >
+      Softsinc
+    </span>
+  );
+}
+
+export function Navbar({ siteLogoUrl }: { siteLogoUrl?: string | null }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -102,13 +166,13 @@ export function Navbar() {
         ) : null}
       </AnimatePresence>
 
-      <header className="sticky top-0 z-50 max-md:pt-[max(0.75rem,env(safe-area-inset-top))] md:pt-0 bg-ss-bg/85 text-ss-text backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-ss-bg/70 dark:bg-zinc-950/90 dark:supports-[backdrop-filter]:bg-zinc-950/75 dark:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.05)]">
+      <header className="sticky top-0 z-50 max-md:pt-[max(0.75rem,env(safe-area-inset-top))] md:pt-0 md:border-b md:border-black/[0.06] bg-ss-bg/85 text-ss-text backdrop-blur-xl backdrop-saturate-150 supports-[backdrop-filter]:bg-ss-bg/70 dark:md:border-white/[0.08] dark:bg-zinc-950/90 dark:supports-[backdrop-filter]:bg-zinc-950/75 dark:shadow-[inset_0_-1px_0_0_rgba(255,255,255,0.05)]">
       <Container
         className={cn(
-          "h-16",
+          "flex min-h-16 items-center md:min-h-[4.25rem]",
           isProductStore
-            ? "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 sm:gap-3"
-            : "flex items-center justify-between gap-4"
+            ? "w-full justify-between gap-2 sm:gap-3 md:gap-5 lg:gap-6"
+            : "justify-between gap-4 md:gap-6 lg:gap-8"
         )}
       >
         {isProductStore ? (
@@ -116,7 +180,7 @@ export function Navbar() {
             <button
               type="button"
               onClick={() => setMobileOpen((v) => !v)}
-              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-ss-text ring-1 ring-black/8 hover:bg-ss-bg-soft/80 active:scale-95 dark:bg-zinc-900/95 dark:text-zinc-100 dark:ring-white/12 dark:hover:bg-zinc-800"
+              className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-ss-text ring-1 ring-black/8 hover:bg-ss-bg-soft/80 active:scale-95 md:hidden dark:bg-zinc-900/95 dark:text-zinc-100 dark:ring-white/12 dark:hover:bg-zinc-800"
               aria-expanded={mobileOpen}
               aria-controls="mobile-nav"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -127,17 +191,13 @@ export function Navbar() {
             </button>
             <Link
               href="/"
-              className="group flex min-w-0 max-w-full items-center justify-center gap-1.5 justify-self-center sm:gap-2"
+              className="group flex min-w-0 flex-1 items-center justify-center gap-2 sm:gap-3 md:flex-none md:justify-start md:gap-5 lg:gap-6"
               onClick={closeMenu}
             >
-              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-ss-primary to-ss-accent text-[10px] font-bold text-white shadow-sm">
-                si
-              </span>
-              <span className="truncate text-sm font-semibold tracking-tight text-ss-text sm:text-base">
-                Softsinc
-              </span>
+              <NavbarBrandMark siteLogoUrl={siteLogoUrl} variant="product" />
+              <NavbarWordmark compact />
             </Link>
-            <div className="flex min-w-0 shrink-0 items-center justify-end gap-0.5 sm:gap-1">
+            <div className="flex min-w-0 shrink-0 items-center justify-end gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2">
               <ThemeToggle />
               <Link
                 href="/services"
@@ -161,18 +221,17 @@ export function Navbar() {
           <>
             <Link
               href="/"
-              className="group inline-flex min-w-0 items-center gap-2"
+              className="group inline-flex min-w-0 items-center gap-3 md:gap-5 lg:gap-6 md:shrink-0"
               onClick={closeMenu}
             >
-              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-[#7C3AED] to-[#A855F7] text-[10px] font-bold text-white shadow-sm ring-1 ring-[#7C3AED]/20">
-                S
-              </span>
-              <span className="text-base font-semibold tracking-tight text-ss-text">
-                Softsinc
-              </span>
+              <NavbarBrandMark siteLogoUrl={siteLogoUrl} variant="default" />
+              <NavbarWordmark />
             </Link>
 
-            <nav className="hidden min-w-0 flex-1 items-center justify-center gap-1 md:flex">
+            <nav
+              className="hidden min-h-0 min-w-0 flex-1 items-center justify-center gap-0.5 px-2 md:flex md:px-4 lg:gap-1 lg:px-6"
+              aria-label="Main navigation"
+            >
               {NAV_LINKS.map((l) => {
                 const active = pathname === l.href;
                 return (
@@ -180,7 +239,7 @@ export function Navbar() {
                     key={l.href}
                     href={l.href}
                     className={cn(
-                      "relative rounded-full px-4 py-2 text-sm font-semibold text-ss-text/80 hover:text-ss-text",
+                      "relative rounded-full px-3 py-2 text-sm font-semibold text-ss-text/80 transition-colors hover:text-ss-text md:px-4 md:py-2.5 lg:px-5",
                       active && "text-ss-text"
                     )}
                   >
@@ -197,7 +256,7 @@ export function Navbar() {
               })}
             </nav>
 
-            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-2 lg:gap-2.5">
               <ThemeToggle className="hidden md:inline-flex" />
               <Link
                 href={WHATSAPP_LINK}

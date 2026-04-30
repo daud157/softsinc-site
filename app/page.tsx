@@ -34,7 +34,7 @@ export default async function Home() {
         </div>
 
         {/* Mobile — headline, then hero image with CTAs tucked at feet (first-screen clarity) */}
-        <Container className="px-4 pt-2 pb-8 md:px-6 lg:hidden">
+        <Container className="px-4 pt-4 pb-8 md:px-6 lg:hidden">
           <div className="mx-auto flex w-full max-w-[320px] flex-col items-center text-center">
             <h1 className="max-w-[17.5rem] text-[1.875rem] font-extrabold leading-[1.1] tracking-tight text-ss-text sm:max-w-[19rem] sm:text-[2.25rem]">
               <span className="block">Premium</span>
@@ -43,7 +43,7 @@ export default async function Home() {
               <span className="block bg-gradient-to-r from-[#7C3AED] to-[#A855F7] bg-clip-text font-extrabold text-transparent dark:from-ss-primary dark:to-ss-accent">
                 Affordable Prices
               </span>
-            </h1>                                                                                                   
+            </h1>                                                                                                 
             <p className="mt-2 max-w-[20rem] text-sm leading-relaxed text-ss-text/75 dark:text-ss-text/85">
               Your trusted softsinc for AI, career, learning, and productivity.
             </p>
@@ -86,8 +86,7 @@ export default async function Home() {
                         <WhatsAppButton
                           href={WHATSAPP_LINK}
                           label="Chat on WhatsApp"
-                          variant="white"
-                          className="!rounded-2xl w-full min-w-0 py-3.5 text-sm shadow-md ring-emerald-600/25"
+                          className="!rounded-2xl w-full min-w-0 py-3.5 text-sm shadow-md"
                         />
                       </div>
                     </div>

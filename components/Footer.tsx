@@ -42,7 +42,7 @@ export async function Footer({ siteLogoUrl }: { siteLogoUrl?: string | null }) {
                 href={WHATSAPP_LINK}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-full bg-ss-bg-soft px-4 py-2 text-sm font-semibold text-ss-primary ring-1 ring-ss-primary/10 hover:bg-ss-bg-soft/70"
+                className="inline-flex items-center justify-center rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-white/20 transition hover:bg-[#20bd5a] hover:shadow-md"
               >
                 WhatsApp
               </Link>
@@ -98,7 +98,7 @@ export async function Footer({ siteLogoUrl }: { siteLogoUrl?: string | null }) {
                   href={WHATSAPP_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-ss-text"
+                  className="inline-flex items-center rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-white/25 hover:bg-[#20bd5a]"
                 >
                   Chat on WhatsApp
                 </Link>

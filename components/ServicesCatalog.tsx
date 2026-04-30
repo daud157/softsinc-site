@@ -23,7 +23,7 @@ export function ServicesCatalog({ services }: { services: Service[] }) {
           service{services.length === 1 ? "" : "s"}
         </div>
         <div className="hidden sm:block">
-          <WhatsAppButton variant="ghost" />
+          <WhatsAppButton />
         </div>
       </div>
 

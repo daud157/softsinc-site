@@ -25,6 +25,7 @@ type Body = {
   priceSuffix?: unknown;
   discountPercent?: unknown;
   plans?: unknown;
+  sortOrder?: unknown;
 };
 
 type IncomingPlan = {
@@ -126,7 +127,7 @@ export function normalizeBody(body: Body) {
     : "Productivity";
   const offerPrice = asNumber(body.offerPrice);
 
-  return {
+  const base = {
     slug,
     title,
     description,
@@ -143,13 +144,22 @@ export function normalizeBody(body: Body) {
     discountPercent: asNumber(body.discountPercent),
     plans: normalizePlans(body.plans),
   };
+
+  if ("sortOrder" in body && body.sortOrder !== undefined && body.sortOrder !== null) {
+    const so = asNumber(body.sortOrder);
+    if (so !== undefined && Number.isFinite(so) && so >= 0) {
+      return { ...base, sortOrder: Math.floor(so) };
+    }
+  }
+
+  return base;
 }
 
 export async function GET() {
   try {
     await connectDB();
     const products = await ProductModel.find({})
-      .sort({ createdAt: -1 })
+      .sort({ sortOrder: 1, createdAt: -1 })
       .lean();
     return NextResponse.json({ products }, { status: 200 });
   } catch (err) {
@@ -194,7 +204,17 @@ export async function POST(request: Request) {
       );
     }
 
-    const product = await ProductModel.create(normalized);
+    let sortOrder = (normalized as { sortOrder?: number }).sortOrder;
+    if (sortOrder === undefined) {
+      const highest = await ProductModel.findOne({})
+        .sort({ sortOrder: -1, createdAt: -1 })
+        .select({ sortOrder: 1 })
+        .lean();
+      sortOrder =
+        (typeof highest?.sortOrder === "number" ? highest.sortOrder : -1) + 1;
+    }
+
+    const product = await ProductModel.create({ ...normalized, sortOrder });
     return NextResponse.json({ product }, { status: 201 });
   } catch (err) {
     console.error("[api/products POST] error:", err);

@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useMoney } from "@/components/providers/CurrencyProvider";
+import { ProductLogoTile } from "@/components/ProductLogoTile";
 import { cn } from "@/lib/cn";
 import type { Service } from "@/lib/services";
 
@@ -50,42 +51,22 @@ export function ProductCard({
         className="block h-full rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ss-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-ss-bg dark:focus-visible:ring-offset-zinc-950"
       >
         <div className="flex h-full flex-col">
-          {/* Image tile */}
-          <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-white ring-1 ring-black/5 transition-shadow group-hover:shadow-[0_18px_55px_-30px_rgba(124,58,237,0.45)] dark:bg-zinc-900/80 dark:ring-white/10 dark:group-hover:shadow-[0_18px_55px_-28px_rgba(124,58,237,0.35)]">
-            {/* Soft gradient + decorative blobs */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white via-ss-bg-soft/40 to-white dark:from-zinc-900 dark:via-ss-primary/10 dark:to-zinc-900"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-ss-primary/15 blur-3xl"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute -bottom-10 -left-12 h-44 w-44 rounded-full bg-ss-accent/15 blur-3xl"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 opacity-60"
-              style={{
-                backgroundImage:
-                  "radial-gradient(circle at 75% 25%, rgba(124,58,237,0.12), transparent 55%), radial-gradient(circle at 20% 85%, rgba(168,85,247,0.10), transparent 55%)",
-              }}
-            />
-
-            {/* Sale badge */}
-            {isOnSale ? (
-              <span className="absolute right-3 top-3 z-10 inline-flex items-center rounded-md bg-ss-text px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900">
-                Sale
-              </span>
-            ) : null}
-
-            {/* Logo */}
+          {/* Image tile — shared template for transparent PNG logos */}
+          <ProductLogoTile
+            variant="card"
+            hoverGlow
+            overlay={
+              isOnSale ? (
+                <span className="absolute right-3 top-3 z-10 inline-flex items-center rounded-md bg-ss-text px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-white shadow-sm dark:bg-zinc-100 dark:text-zinc-900">
+                  Sale
+                </span>
+              ) : null
+            }
+          >
             <motion.div
               whileHover={{ scale: 1.04 }}
               transition={{ duration: 0.2 }}
-              className="absolute inset-0 grid place-items-center p-6 sm:p-8"
+              className="relative h-full w-full"
             >
               {product.logoUrl ? (
                 <div className="relative h-full w-full">
@@ -103,7 +84,7 @@ export function ProductCard({
                 </div>
               )}
             </motion.div>
-          </div>
+          </ProductLogoTile>
 
           {/* Meta */}
           <div className="mt-4 flex flex-1 flex-col gap-1.5">

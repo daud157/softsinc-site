@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { ProductLogoTile } from "@/components/ProductLogoTile";
 import { Card } from "@/components/ui/Card";
 import { RichTextEditor } from "@/components/admin/RichTextEditor";
 import { cn } from "@/lib/cn";
@@ -30,6 +31,8 @@ type FormState = {
   iconLabel: string;
   popular: boolean;
   disabled: boolean;
+  /** Whole number ≥ 0 for catalog order; empty on create = append last. */
+  sortOrder: string;
   benefitsText: string;
   originalPrice: string;
   offerPrice: string;
@@ -48,6 +51,7 @@ const EMPTY_FORM: FormState = {
   iconLabel: "",
   popular: false,
   disabled: false,
+  sortOrder: "",
   benefitsText: "",
   originalPrice: "",
   offerPrice: "",
@@ -68,6 +72,45 @@ function slugify(s: string) {
     .replace(/[^a-z0-9-\s]/g, "")
     .replace(/\s+/g, "-")
     .replace(/-+/g, "-");
+}
+
+function catalogSortKey(p: ApiProduct): number {
+  return typeof p.sortOrder === "number" ? p.sortOrder : 0;
+}
+
+function compareCatalogProducts(a: ApiProduct, b: ApiProduct): number {
+  const ao = catalogSortKey(a);
+  const bo = catalogSortKey(b);
+  if (ao !== bo) return ao - bo;
+  const ad = a.createdAt ?? "";
+  const bd = b.createdAt ?? "";
+  return bd.localeCompare(ad);
+}
+
+function putPayloadFromProduct(
+  p: ApiProduct,
+  overrides?: { sortOrder?: number; disabled?: boolean }
+) {
+  return {
+    slug: p.slug,
+    title: p.title,
+    description: p.description ?? "",
+    category: p.category,
+    logoUrl: p.logoUrl ?? "",
+    images: Array.isArray(p.images) ? p.images : [],
+    iconLabel: p.iconLabel ?? "",
+    popular: Boolean(p.popular),
+    disabled:
+      overrides?.disabled !== undefined ? overrides.disabled : Boolean(p.disabled),
+    benefits: Array.isArray(p.benefits) ? p.benefits : [],
+    originalPrice: p.originalPrice,
+    offerPrice: p.offerPrice,
+    priceSuffix: p.priceSuffix ?? "/month",
+    discountPercent: p.discountPercent,
+    plans: p.plans ?? [],
+    sortOrder:
+      overrides?.sortOrder !== undefined ? overrides.sortOrder : catalogSortKey(p),
+  };
 }
 
 export function AdminProductsPanel() {
@@ -126,6 +169,8 @@ export function AdminProductsPanel() {
       iconLabel: p.iconLabel ?? "",
       popular: Boolean(p.popular),
       disabled: Boolean(p.disabled),
+      sortOrder:
+        typeof p.sortOrder === "number" ? String(p.sortOrder) : "",
       benefitsText: (p.benefits ?? []).join("\n"),
       originalPrice:
         typeof p.originalPrice === "number" ? String(p.originalPrice) : "",
@@ -203,23 +248,7 @@ export function AdminProductsPanel() {
       message: p.disabled ? "Enabling..." : "Disabling...",
     });
     try {
-      const payload = {
-        slug: p.slug,
-        title: p.title,
-        description: p.description,
-        category: p.category,
-        logoUrl: p.logoUrl,
-        images: p.images ?? [],
-        iconLabel: p.iconLabel,
-        popular: p.popular,
-        disabled: !p.disabled,
-        benefits: p.benefits,
-        originalPrice: p.originalPrice,
-        offerPrice: p.offerPrice,
-        priceSuffix: p.priceSuffix,
-        discountPercent: p.discountPercent,
-        plans: p.plans,
-      };
+      const payload = putPayloadFromProduct(p, { disabled: !p.disabled });
       const res = await fetch(`/api/products/${encodeURIComponent(p._id)}`, {
         method: "PUT",
         credentials: "include",
@@ -244,6 +273,60 @@ export function AdminProductsPanel() {
       setActionStatus({ kind: "error", message });
     }
   };
+
+  const reorderProduct = useCallback(
+    async (p: ApiProduct, dir: -1 | 1) => {
+      const sorted = [...products].sort(compareCatalogProducts);
+      const idx = sorted.findIndex((x) => x._id === p._id);
+      const j = idx + dir;
+      if (idx < 0 || j < 0 || j >= sorted.length) return;
+
+      const reordered = [...sorted];
+      [reordered[idx], reordered[j]] = [reordered[j], reordered[idx]];
+
+      setActionStatus({ kind: "loading", message: "Updating order..." });
+      try {
+        const updates = reordered
+          .map((prod, order) => ({ prod, order }))
+          .filter(({ prod, order }) => catalogSortKey(prod) !== order);
+
+        await Promise.all(
+          updates.map(({ prod, order }) =>
+            fetch(`/api/products/${encodeURIComponent(prod._id)}`, {
+              method: "PUT",
+              credentials: "include",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(
+                putPayloadFromProduct(prod, { sortOrder: order })
+              ),
+            }).then(async (res) => {
+              if (res.status === 401) {
+                goToLogin();
+                throw new Error("Session expired. Sign in again.");
+              }
+              if (!res.ok) {
+                const data = (await res.json().catch(() => ({}))) as {
+                  error?: string;
+                };
+                throw new Error(data.error || `Update failed (${res.status})`);
+              }
+            })
+          )
+        );
+
+        setActionStatus({
+          kind: "success",
+          message: "Catalog order updated.",
+        });
+        fetchProducts();
+      } catch (err) {
+        const message =
+          err instanceof Error ? err.message : "Failed to update order";
+        setActionStatus({ kind: "error", message });
+      }
+    },
+    [products, fetchProducts, goToLogin]
+  );
 
   return (
     <div className="space-y-6">
@@ -354,7 +437,7 @@ export function AdminProductsPanel() {
           </div>
         ) : (
           <ul className="mt-5 grid gap-3">
-            {products.map((p) => (
+            {[...products].sort(compareCatalogProducts).map((p, listIdx, arr) => (
               <li
                 key={p._id}
                 className={cn(
@@ -365,6 +448,39 @@ export function AdminProductsPanel() {
                 )}
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                  <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:gap-1">
+                    <span
+                      className="grid min-w-[2rem] place-items-center rounded-lg bg-ss-bg-soft px-2 py-1 text-xs font-bold tabular-nums text-ss-primary ring-1 ring-ss-primary/15"
+                      title="Catalog position"
+                    >
+                      {listIdx + 1}
+                    </span>
+                    <div className="flex gap-0.5">
+                      <button
+                        type="button"
+                        title="Move up"
+                        aria-label={`Move ${p.title} up`}
+                        disabled={listIdx === 0 || actionStatus.kind === "loading"}
+                        onClick={() => reorderProduct(p, -1)}
+                        className="rounded-lg bg-white px-2 py-1 text-xs font-semibold text-ss-text/70 ring-1 ring-black/10 hover:bg-black/5 disabled:opacity-30"
+                      >
+                        ↑
+                      </button>
+                      <button
+                        type="button"
+                        title="Move down"
+                        aria-label={`Move ${p.title} down`}
+                        disabled={
+                          listIdx >= arr.length - 1 ||
+                          actionStatus.kind === "loading"
+                        }
+                        onClick={() => reorderProduct(p, 1)}
+                        className="rounded-lg bg-white px-2 py-1 text-xs font-semibold text-ss-text/70 ring-1 ring-black/10 hover:bg-black/5 disabled:opacity-30"
+                      >
+                        ↓
+                      </button>
+                    </div>
+                  </div>
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-ss-bg-soft ring-1 ring-black/5 sm:h-20 sm:w-20">
                     {p.logoUrl ? (
                       <Image
@@ -677,6 +793,22 @@ function ProductForm({
     }
     const slug = form.slug.trim() || slugify(form.title);
 
+    const sortTrim = form.sortOrder.trim();
+    let sortOrderPayload: number | undefined;
+    if (sortTrim !== "") {
+      const so = Number(sortTrim);
+      if (!Number.isFinite(so) || so < 0 || !Number.isInteger(so)) {
+        setSubmitStatus({
+          kind: "error",
+          message: "Display order must be a whole number ≥ 0.",
+        });
+        return;
+      }
+      sortOrderPayload = Math.floor(so);
+    } else if (mode === "edit") {
+      sortOrderPayload = 0;
+    }
+
     const payload = {
       slug,
       title: form.title.trim(),
@@ -739,6 +871,9 @@ function ProductForm({
           })(),
           customContent: (p.customContent ?? "").trim(),
         })),
+      ...(sortOrderPayload !== undefined
+        ? { sortOrder: sortOrderPayload }
+        : {}),
     };
 
     setSubmitStatus({
@@ -799,21 +934,23 @@ function ProductForm({
         {/* Logo */}
         <Field label="Logo">
           <div className="grid gap-3 sm:grid-cols-[160px_minmax(0,1fr)]">
-            <div className="relative aspect-square w-full overflow-hidden rounded-2xl bg-ss-bg-soft/60 ring-1 ring-black/5">
+            <ProductLogoTile variant="compact" className="w-full">
               {form.logoUrl ? (
-                <Image
-                  src={form.logoUrl}
-                  alt="Logo preview"
-                  fill
-                  sizes="160px"
-                  className="object-contain p-3"
-                />
+                <div className="relative h-full min-h-[120px] w-full">
+                  <Image
+                    src={form.logoUrl}
+                    alt="Logo preview"
+                    fill
+                    sizes="160px"
+                    className="object-contain"
+                  />
+                </div>
               ) : (
-                <div className="grid h-full w-full place-items-center text-xs text-ss-text/55">
+                <div className="grid min-h-[120px] w-full place-items-center text-xs text-ss-text/55">
                   No logo
                 </div>
               )}
-            </div>
+            </ProductLogoTile>
             <div className="flex flex-col gap-2">
               <input
                 ref={fileInputRef}
@@ -836,7 +973,7 @@ function ProductForm({
                 suppressHydrationWarning
               />
               <p className="text-[11px] text-ss-text/55">
-                PNG, JPG, or WebP. Square works best.
+                Transparent PNG recommended — preview uses the same frame as the storefront.
               </p>
             </div>
           </div>
@@ -1011,17 +1148,33 @@ function ProductForm({
               ))}
             </select>
           </Field>
-          <Field label="Icon label" hint="2–3 chars shown if no logo">
+          <Field
+            label="Display order"
+            hint="Lower numbers appear first in the catalog. Leave blank when creating to add at the end."
+          >
             <input
-              type="text"
-              value={form.iconLabel}
-              onChange={(e) => updateField("iconLabel", e.target.value)}
-              placeholder="e.g. AI"
+              type="number"
+              min={0}
+              step={1}
+              value={form.sortOrder}
+              onChange={(e) => updateField("sortOrder", e.target.value)}
+              placeholder={mode === "create" ? "auto" : "0"}
               className={inputCls}
               suppressHydrationWarning
             />
           </Field>
         </div>
+
+        <Field label="Icon label" hint="2–3 chars shown if no logo">
+          <input
+            type="text"
+            value={form.iconLabel}
+            onChange={(e) => updateField("iconLabel", e.target.value)}
+            placeholder="e.g. AI"
+            className={inputCls}
+            suppressHydrationWarning
+          />
+        </Field>
 
         <Field label="Benefits" hint="One per line — shown as bullets on the card.">
           <textarea

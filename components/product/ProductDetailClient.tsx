@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+import { ProductLogoTile } from "@/components/ProductLogoTile";
 import { Container } from "@/components/Container";
 import { useMoney } from "@/components/providers/CurrencyProvider";
 import { FaqAccordion } from "@/components/FaqAccordion";
@@ -322,26 +323,26 @@ export function ProductDetailClient({
         <div className="mt-5 grid items-start gap-8 lg:grid-cols-2 lg:gap-10">
           {/* Gallery — store-style product image */}
           <div className="relative z-10 space-y-3">
-            <div className="overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-sm dark:border-white/10 dark:bg-zinc-900/70 dark:shadow-none">
-              <div className="relative aspect-[4/3] w-full">
-                {activeImg ? (
+            <ProductLogoTile variant="detail">
+              {activeImg ? (
+                <div className="relative h-full min-h-[200px] w-full sm:min-h-[240px]">
                   <Image
                     src={activeImg}
                     alt={`${product.title} preview`}
                     fill
                     sizes="(max-width: 1024px) 100vw, 600px"
-                    className="object-contain p-4 sm:p-6"
+                    className="object-contain"
                     priority
                   />
-                ) : (
-                  <div className="grid h-full w-full place-items-center p-8">
-                    <div className="grid h-28 w-28 place-items-center rounded-2xl bg-gradient-to-br from-ss-primary to-ss-accent text-2xl font-extrabold text-white">
-                      {(product.iconLabel || product.title.slice(0, 2)).toUpperCase()}
-                    </div>
+                </div>
+              ) : (
+                <div className="grid min-h-[200px] w-full place-items-center sm:min-h-[240px]">
+                  <div className="grid h-28 w-28 place-items-center rounded-2xl bg-gradient-to-br from-ss-primary to-ss-accent text-2xl font-extrabold text-white shadow-lg">
+                    {(product.iconLabel || product.title.slice(0, 2)).toUpperCase()}
                   </div>
-                )}
-              </div>
-            </div>
+                </div>
+              )}
+            </ProductLogoTile>
             {product.images.length > 1 ? (
               <div className="grid grid-cols-3 gap-2 sm:gap-3">
                 {product.images.map((src) => {
@@ -352,10 +353,10 @@ export function ProductDetailClient({
                       type="button"
                       onClick={() => setActiveImg(src)}
                       className={cn(
-                        "relative z-10 touch-manipulation overflow-hidden rounded-xl border bg-white transition-colors dark:bg-zinc-900",
+                        "relative z-10 touch-manipulation overflow-hidden rounded-xl border bg-ss-bg/90 transition-colors dark:bg-ss-bg-soft/40",
                         act
-                          ? "border-zinc-900 ring-1 ring-zinc-900/10 dark:border-white dark:ring-white/20"
-                          : "border-zinc-200 hover:border-zinc-400 dark:border-white/15 dark:hover:border-white/30"
+                          ? "border-ss-primary ring-2 ring-ss-primary/35 dark:border-ss-primary dark:ring-ss-primary/45"
+                          : "border-black/10 hover:border-ss-primary/40 dark:border-white/12 dark:hover:border-ss-primary/45"
                       )}
                       aria-label="Change preview image"
                     >

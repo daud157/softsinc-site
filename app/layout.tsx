@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import Script from "next/script";
 import "./globals.css";
 import { AnnouncementBar } from "@/components/AnnouncementBar";
 import { Footer } from "@/components/Footer";
@@ -82,20 +81,25 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
-      <body className="min-h-full flex flex-col bg-ss-bg text-ss-text">
-        <Script
+      <head>
+        {/* Inline in <head> so theme runs before paint; avoids React client warnings for <script> in <body>. */}
+        <script
           id="softsinc-theme-init"
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: THEME_INIT }}
+          suppressHydrationWarning
         />
+        <script
+          id="softsinc-jsonld"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: SITE_JSON_LD }}
+          suppressHydrationWarning
+        />
+      </head>
+      <body className="min-h-full flex flex-col bg-ss-bg text-ss-text">
         <AppProviders>
           <a href="#main-content" className="skip-link">
             Skip to main content
           </a>
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: SITE_JSON_LD }}
-          />
           <Navbar siteLogoUrl={logo} />
           <AnnouncementBar />
           <main id="main-content" className="flex-1 scroll-mt-16 pb-24 sm:pb-0">

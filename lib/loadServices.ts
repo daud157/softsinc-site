@@ -19,7 +19,7 @@ export async function loadServices(): Promise<Service[]> {
 
     await connectDB();
     const docs = await ProductModel.find({ disabled: { $ne: true } })
-      .sort({ createdAt: -1 })
+      .sort({ sortOrder: 1, createdAt: -1 })
       .lean();
 
     if (!docs || docs.length === 0) return [];

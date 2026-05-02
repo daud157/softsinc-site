@@ -70,6 +70,8 @@ export type ApiProduct = {
   priceSuffix: string;
   discountPercent?: number;
   plans: ApiPlan[];
+  /** Catalog sort position — lower appears first. */
+  sortOrder?: number;
   createdAt?: string;
   updatedAt?: string;
 };

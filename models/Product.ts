@@ -87,9 +87,14 @@ const ProductSchema = new Schema(
     discountPercent: { type: Number, min: 0, max: 100 },
 
     plans: { type: [PlanSchema], default: [] },
+
+    /** Lower values appear first on the public catalog and admin list. */
+    sortOrder: { type: Number, default: 0 },
   },
   { versionKey: false, timestamps: true }
 );
+
+ProductSchema.index({ sortOrder: 1, createdAt: -1 });
 
 export type ProductDoc = InferSchemaType<typeof ProductSchema> & {
   _id: mongoose.Types.ObjectId;

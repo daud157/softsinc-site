@@ -22,3 +22,15 @@ export const NAV_LINKS: Array<{ href: string; label: string }> = [
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
+
+/** Optional public social URLs (set in env to show links in the footer). */
+export const SOCIAL_URLS = {
+  facebook:
+    (typeof process !== "undefined" &&
+      process.env.NEXT_PUBLIC_FACEBOOK_URL?.trim()) ||
+    "",
+  instagram:
+    (typeof process !== "undefined" &&
+      process.env.NEXT_PUBLIC_INSTAGRAM_URL?.trim()) ||
+    "",
+} as const;

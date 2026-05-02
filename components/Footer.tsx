@@ -2,17 +2,27 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { Container } from "@/components/Container";
+import { cn } from "@/lib/cn";
 import { cloudinaryBrandingLogoDeliveryUrl } from "@/lib/cloudinaryBrandingUrl";
 import { loadServices } from "@/lib/loadServices";
-import { NAV_LINKS, WHATSAPP_LINK } from "@/lib/site";
+import { NAV_LINKS, SOCIAL_URLS, WHATSAPP_LINK } from "@/lib/site";
+
+function socialPillClass(active: boolean) {
+  return cn(
+    "inline-flex items-center justify-center rounded-full px-3 py-1.5 text-sm font-semibold ring-1 transition-colors",
+    active
+      ? "bg-white text-zinc-800 ring-black/10 hover:bg-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 dark:ring-white/20"
+      : "cursor-default bg-ss-bg-soft/50 text-ss-text/45 ring-black/5 dark:ring-white/10"
+  );
+}
 
 export async function Footer({ siteLogoUrl }: { siteLogoUrl?: string | null }) {
   const services = await loadServices();
   const logoUrl = siteLogoUrl?.trim() || undefined;
-  // Show up to 6 footer links; prefer popular products first.
-  const topServices = [...services]
-    .sort((a, b) => Number(Boolean(b.popular)) - Number(Boolean(a.popular)))
-    .slice(0, 6);
+  /** Same order as the public catalog (admin-controlled). */
+  const featuredServices = services.slice(0, 6);
+  const hasSocial =
+    Boolean(SOCIAL_URLS.facebook) || Boolean(SOCIAL_URLS.instagram);
 
   return (
     <footer className="border-t border-black/5 bg-white dark:border-white/10 dark:bg-zinc-950">
@@ -31,11 +41,25 @@ export async function Footer({ siteLogoUrl }: { siteLogoUrl?: string | null }) {
                   />
                 </span>
               ) : null}
-              <div className="text-base font-semibold tracking-tight text-ss-text">Softsinc</div>
+              <div className="text-base font-semibold tracking-tight text-ss-text">
+                Softsinc
+              </div>
             </div>
             <p className="mt-3 max-w-md text-sm leading-6 text-ss-text/70">
-              Premium digital tools and subscriptions at affordable prices, with
-              reliable support and warranty.
+              Premium digital tools and subscriptions at affordable prices—clear
+              guidance, WhatsApp-first support, and warranty-minded delivery.
+            </p>
+            <p className="mt-3 text-xs leading-relaxed text-ss-text/55">
+              <Link href="/about" className="font-medium text-ss-primary/90 hover:text-ss-primary">
+                About us
+              </Link>
+              <span className="mx-2 text-ss-text/35">·</span>
+              <Link
+                href="/contact"
+                className="font-medium text-ss-primary/90 hover:text-ss-primary"
+              >
+                Contact
+              </Link>
             </p>
             <div className="mt-5 flex flex-wrap items-center gap-2">
               <Link
@@ -69,10 +93,12 @@ export async function Footer({ siteLogoUrl }: { siteLogoUrl?: string | null }) {
           </div>
 
           <div>
-            <div className="text-sm font-semibold text-ss-text">Top services</div>
-            {topServices.length > 0 ? (
+            <div className="text-sm font-semibold text-ss-text">
+              Featured services
+            </div>
+            {featuredServices.length > 0 ? (
               <ul className="mt-4 space-y-3 text-sm">
-                {topServices.map((s) => (
+                {featuredServices.map((s) => (
                   <li key={s.slug}>
                     <Link
                       href={`/product/${encodeURIComponent(s.slug)}`}
@@ -84,56 +110,76 @@ export async function Footer({ siteLogoUrl }: { siteLogoUrl?: string | null }) {
                 ))}
               </ul>
             ) : (
-              <p className="mt-4 text-xs text-ss-text/55">
-                Catalog coming soon.
-              </p>
+              <p className="mt-4 text-xs text-ss-text/55">Catalog coming soon.</p>
             )}
           </div>
 
           <div>
-            <div className="text-sm font-semibold text-ss-text">Contact</div>
+            <div className="text-sm font-semibold text-ss-text">Get help</div>
             <ul className="mt-4 space-y-3 text-sm text-ss-text/70">
               <li>
                 <Link
                   href={WHATSAPP_LINK}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white shadow-sm ring-1 ring-white/25 hover:bg-[#20bd5a]"
+                  className="font-medium text-ss-primary hover:text-ss-accent"
                 >
-                  Chat on WhatsApp
+                  Message us on WhatsApp →
                 </Link>
               </li>
-              <li className="text-xs text-ss-text/60">
-                Final price depends on plan, duration, and availability.
+              <li>
+                <Link href="/contact" className="hover:text-ss-text">
+                  Contact page
+                </Link>
+              </li>
+              <li className="text-xs leading-relaxed text-ss-text/55">
+                Pricing varies by plan and duration. We confirm availability on
+                WhatsApp before you pay.
               </li>
             </ul>
 
             <div className="mt-6">
               <div className="text-sm font-semibold text-ss-text">Social</div>
-              <div className="mt-4 flex flex-wrap gap-3 text-sm">
-                <Link
-                  href="/"
-                  className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1.5 font-semibold text-zinc-800 ring-1 ring-black/10 hover:bg-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 dark:ring-white/20"
-                >
-                  Facebook
-                </Link>
-                <Link
-                  href="/"
-                  className="inline-flex items-center justify-center rounded-full bg-white px-3 py-1.5 font-semibold text-zinc-800 ring-1 ring-black/10 hover:bg-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200 dark:ring-white/20"
-                >
-                  Instagram
-                </Link>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {SOCIAL_URLS.facebook ? (
+                  <Link
+                    href={SOCIAL_URLS.facebook}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={socialPillClass(true)}
+                  >
+                    Facebook
+                  </Link>
+                ) : (
+                  <span className={socialPillClass(false)}>Facebook</span>
+                )}
+                {SOCIAL_URLS.instagram ? (
+                  <Link
+                    href={SOCIAL_URLS.instagram}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={socialPillClass(true)}
+                  >
+                    Instagram
+                  </Link>
+                ) : (
+                  <span className={socialPillClass(false)}>Instagram</span>
+                )}
               </div>
-              <div className="mt-2 text-xs text-ss-text/50">
-                (Add real social links when ready.)
-              </div>
+              {!hasSocial ? (
+                <p className="mt-2 text-xs text-ss-text/50">
+                  Social profiles coming soon—follow us here once we publish.
+                </p>
+              ) : null}
             </div>
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-2 border-t border-black/5 pt-6 text-sm text-ss-text/60 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col gap-2 border-t border-black/5 pt-6 text-sm text-ss-text/60 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between">
           <span>© {new Date().getFullYear()} Softsinc. All rights reserved.</span>
-          <span>Built for a premium, clean experience.</span>
+          <span className="text-ss-text/50">
+            Pakistan · Digital subscriptions and tools
+          </span>
         </div>
       </Container>
     </footer>

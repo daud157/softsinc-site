@@ -49,30 +49,58 @@ function liveCheckoutViewers(slug: string) {
   return 3 + (h % 8);
 }
 
-function Pill({
-  children,
-  variant = "soft",
-  className,
-}: {
-  children: React.ReactNode;
-  variant?: "soft" | "gradient" | "outline";
-  className?: string;
-}) {
-  const styles =
-    variant === "gradient"
-      ? "bg-gradient-to-r from-ss-primary to-ss-accent text-white shadow-sm ring-1 ring-white/20"
-      : variant === "outline"
-        ? "bg-white text-ss-text/80 ring-1 ring-black/10 dark:bg-zinc-900 dark:text-zinc-200 dark:ring-white/15"
-        : "bg-ss-bg-soft text-ss-primary ring-1 ring-ss-primary/10 dark:bg-ss-bg-soft/40 dark:ring-ss-primary/25";
+function breadcrumbTitle(title: string, max = 42) {
+  const t = title.trim();
+  if (t.length <= max) return t;
+  return `${t.slice(0, max - 1)}…`;
+}
+
+function WorksOnIcon({ platform }: { platform: string }) {
+  const p = platform.toLowerCase();
+  if (p.includes("web"))
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+        <circle cx="12" cy="12" r="10" className="fill-none stroke-ss-primary" strokeWidth="1.5" />
+        <ellipse cx="12" cy="12" rx="4" ry="10" className="fill-none stroke-ss-primary/50" strokeWidth="1.25" />
+        <path d="M2 12h20" className="stroke-ss-primary/40" strokeWidth="1.25" />
+      </svg>
+    );
+  if (p.includes("windows"))
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+        <path className="fill-ss-primary" d="M3 5.5l7-1v6.5H3V5.5zm0 7.5h7V20l-7-1.2V13zm8.5-8.3L21 3v7.5h-9.5V4.7zm0 8.8H21V21l-9.5-1.4V13.5z" />
+      </svg>
+    );
+  if (p.includes("mac"))
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-ss-primary" aria-hidden>
+        <path
+          fill="currentColor"
+          d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"
+        />
+      </svg>
+    );
+  if (p.includes("android"))
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-ss-primary" aria-hidden>
+        <path
+          fill="currentColor"
+          d="M17.6 9.48l1.84-1.29c.48-.34.57-.99.19-1.45-.37-.46-1.08-.51-1.52-.15l-1.74 1.23C14.84 6.95 13.5 6.5 12 6.5c-1.5 0-2.84.45-3.89 1.12L6.37 6.4c-.44-.36-1.15-.31-1.52.15-.38.46-.29 1.11.19 1.45L6.4 9.48C4.8 10.8 3.8 12.7 3.8 15H20.2c0-2.3-1-4.2-2.6-5.52zM7.5 12.5c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm9 0c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zM7.5 16h9v3.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5V17h-2v2.5c0 .83-.67 1.5-1.5 1.5s-1.5-.67-1.5-1.5V16z"
+        />
+      </svg>
+    );
+  if (p.includes("ios") || p.includes("iphone") || p.includes("ipad"))
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5 text-ss-primary" aria-hidden>
+        <path
+          fill="currentColor"
+          d="M16.5 3c.3 0 .6.1.8.3.5.4.8 1 .8 1.7 0 .6-.2 1.2-.6 1.6-.4.5-1 .8-1.6.8-.3 0-.6-.1-.9-.2-.4-.2-.7-.5-.9-.9-.2-.3-.3-.7-.3-1.1 0-.7.3-1.3.8-1.7.2-.2.6-.3 1-.3zm2.2 6.2c.9 1.1 1.4 2.5 1.4 4 0 2.8-1.5 5.3-3.8 6.6-.7.4-1.4.6-2.1.6-.5 0-1-.1-1.4-.4-.5-.3-1-.4-1.5-.4-.6 0-1.2.1-1.7.4-.4.2-.9.4-1.4.4-.8 0-1.5-.2-2.2-.7-2.4-1.4-3.8-3.8-3.8-6.5 0-2.6 1.3-4.8 3.3-5.8.6-.3 1.2-.5 1.9-.5.6 0 1.2.2 1.7.5.4.3.9.4 1.4.4.4 0 .8-.1 1.2-.3.6-.3 1.3-.5 2-.5.7 0 1.4.2 2 .6z"
+        />
+      </svg>
+    );
   return (
-    <span
-      className={cn(
-        "inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold",
-        styles,
-        className
-      )}
-    >
-      {children}
+    <span className="grid h-9 w-9 place-items-center rounded-xl bg-ss-bg-soft text-xs font-bold text-ss-primary ring-1 ring-ss-primary/15">
+      {platform.slice(0, 2).toUpperCase()}
     </span>
   );
 }
@@ -297,7 +325,7 @@ export function ProductDetailClient({
 
       <Container className="py-4 sm:py-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap items-center gap-2 text-xs text-zinc-500 dark:text-zinc-400">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
             <Link href="/" className="hover:text-zinc-800 dark:hover:text-zinc-200">
               Home
             </Link>
@@ -305,6 +333,13 @@ export function ProductDetailClient({
             <Link href="/services" className="hover:text-zinc-800 dark:hover:text-zinc-200">
               Services
             </Link>
+            <span aria-hidden="true">/</span>
+            <span
+              className="min-w-0 truncate font-medium text-zinc-700 dark:text-zinc-300"
+              title={product.title}
+            >
+              {breadcrumbTitle(product.title)}
+            </span>
           </div>
           <button
             type="button"
@@ -653,8 +688,13 @@ export function ProductDetailClient({
           >
             {product.worksOn.map((p) => (
               <motion.div key={p} variants={fadeUp}>
-                <Card className="p-5 text-center">
-                  <div className="text-sm font-semibold">{p}</div>
+                <Card className="group flex flex-col items-center gap-3 p-5 text-center transition-colors hover:ring-ss-primary/20">
+                  <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-ss-bg-soft to-white shadow-sm ring-1 ring-ss-primary/15 transition-transform group-hover:scale-[1.03] dark:from-zinc-900 dark:to-zinc-950 dark:ring-ss-primary/25">
+                    <WorksOnIcon platform={p} />
+                  </span>
+                  <div className="text-sm font-semibold tracking-tight text-ss-text">
+                    {p}
+                  </div>
                 </Card>
               </motion.div>
             ))}
@@ -687,12 +727,20 @@ export function ProductDetailClient({
               { step: "04", title: "Enjoy", desc: "Use your tool with support as needed." },
             ].map((i) => (
               <motion.div key={i.step} variants={fadeUp}>
-                <Card className="p-6">
-                  <Pill className="w-fit">Step {i.step}</Pill>
-                  <div className="mt-3 text-base font-semibold tracking-tight">
-                    {i.title}
+                <Card className="relative h-full overflow-hidden p-6 pt-7 ring-ss-primary/10 transition-shadow hover:shadow-md hover:ring-ss-primary/20">
+                  <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br from-ss-primary/15 to-ss-accent/10 blur-2xl"
+                  />
+                  <div className="relative">
+                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-ss-primary to-ss-accent text-sm font-black tabular-nums text-white shadow-md ring-1 ring-white/25">
+                      {i.step}
+                    </span>
+                    <div className="mt-4 text-base font-semibold tracking-tight text-ss-text">
+                      {i.title}
+                    </div>
+                    <p className="mt-2 text-sm leading-6 text-ss-text/70">{i.desc}</p>
                   </div>
-                  <p className="mt-2 text-sm leading-6 text-ss-text/70">{i.desc}</p>
                 </Card>
               </motion.div>
             ))}
@@ -750,28 +798,76 @@ export function ProductDetailClient({
           whileInView="visible"
           viewport={{ once: true, margin: "0px 0px 100px 0px" }}
         >
-          <div className="rounded-2xl bg-gradient-to-br from-ss-primary/20 via-white to-ss-accent/15 p-[1px]">
-            <Card className="p-8 sm:p-10">
-              <div className="grid gap-8 md:grid-cols-[1.2fr_0.8fr] md:items-center">
+          <div className="rounded-3xl bg-gradient-to-br from-ss-primary/25 via-white/95 to-ss-accent/20 p-[1px] shadow-[0_24px_80px_-48px_rgba(124,58,237,0.45)] dark:from-ss-primary/35 dark:via-zinc-950/95 dark:to-ss-accent/25 dark:shadow-[0_24px_80px_-48px_rgba(124,58,237,0.35)]">
+            <Card className="relative overflow-hidden border-0 bg-white/90 p-0 shadow-xl ring-1 ring-ss-primary/10 dark:bg-zinc-950/90 dark:ring-ss-primary/20">
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_0%_0%,rgba(124,58,237,0.12),transparent_55%)] dark:bg-[radial-gradient(120%_80%_at_0%_0%,rgba(167,139,250,0.12),transparent_55%)]"
+              />
+              <div className="relative grid gap-8 p-8 sm:p-10 md:grid-cols-[1.15fr_0.85fr] md:items-start md:gap-10">
                 <div>
                   <div className="inline-flex items-center rounded-full bg-ss-bg-soft px-3 py-1 text-xs font-semibold text-ss-primary ring-1 ring-ss-primary/10">
-                    Need help?
+                    Still deciding?
                   </div>
                   <h2 className="mt-4 text-balance text-2xl font-semibold tracking-tight text-ss-text sm:text-3xl">
-                    Chat on WhatsApp to confirm availability
+                    Message us about{" "}
+                    <span className="text-ss-primary">{product.title}</span>
                   </h2>
-                  <p className="mt-3 text-sm leading-6 text-ss-text/70 sm:text-base">
-                    Tell us what you want, and we’ll guide you through plan options
-                    and next steps.
+                  <p className="mt-3 max-w-xl text-sm leading-7 text-ss-text/70 sm:text-base">
+                    Share your plan choice from above—we reply with availability,
+                    timing, and payment steps. No spam; just clear answers on
+                    WhatsApp.
                   </p>
+                  <ul className="mt-6 grid gap-2.5 text-sm text-ss-text/75">
+                    <li className="flex gap-2">
+                      <span
+                        className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ss-primary"
+                        aria-hidden
+                      />
+                      Same-day replies during active hours
+                    </li>
+                    <li className="flex gap-2">
+                      <span
+                        className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ss-primary"
+                        aria-hidden
+                      />
+                      Guided activation after you confirm
+                    </li>
+                  </ul>
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-ss-bg-soft/80 px-3 py-1 text-[11px] font-semibold text-ss-text/70 ring-1 ring-ss-primary/10 dark:bg-white/5 dark:text-ss-text/80">
+                      Trusted checkout
+                    </span>
+                    <span className="rounded-full bg-ss-bg-soft/80 px-3 py-1 text-[11px] font-semibold text-ss-text/70 ring-1 ring-ss-primary/10 dark:bg-white/5 dark:text-ss-text/80">
+                      Plan-aware quotes
+                    </span>
+                  </div>
                 </div>
                 <div className="flex flex-col gap-3">
-                  <WhatsAppButton className="w-full" label="Chat on WhatsApp" />
+                  <WhatsAppButton
+                    href={whatsappWithContext}
+                    className="w-full justify-center py-3.5 text-base shadow-md"
+                    label="Chat on WhatsApp"
+                  />
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    <Link
+                      href="/services"
+                      className="inline-flex items-center justify-center rounded-full bg-ss-bg-soft px-4 py-2.5 text-sm font-semibold text-ss-primary ring-1 ring-ss-primary/15 transition hover:bg-ss-bg-soft/70"
+                    >
+                      More tools
+                    </Link>
+                    <Link
+                      href="/about"
+                      className="inline-flex items-center justify-center rounded-full bg-white px-4 py-2.5 text-sm font-semibold text-ss-text ring-1 ring-black/10 transition hover:bg-zinc-50 dark:bg-zinc-900 dark:text-zinc-100 dark:ring-white/15 dark:hover:bg-zinc-800"
+                    >
+                      About Softsinc
+                    </Link>
+                  </div>
                   <Link
-                    href="/services"
-                    className="inline-flex items-center justify-center rounded-full bg-ss-bg-soft px-6 py-3 text-sm font-semibold text-ss-primary ring-1 ring-ss-primary/10 hover:bg-ss-bg-soft/70"
+                    href="/reviews"
+                    className="text-center text-xs font-semibold text-ss-primary/90 underline-offset-4 hover:text-ss-primary hover:underline"
                   >
-                    Back to services
+                    Read customer reviews →
                   </Link>
                 </div>
               </div>

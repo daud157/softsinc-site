@@ -1,10 +1,22 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { JsonLd } from "@/components/JsonLd";
 import { ProductDetailClient } from "@/components/product/ProductDetailClient";
 import type { ReviewItem } from "@/data/reviews";
 import { loadProductBySlug } from "@/lib/loadProduct";
 import { loadReviews } from "@/lib/loadReviews";
+import { loadServices } from "@/lib/loadServices";
+import type { Service } from "@/lib/services";
+import { SITE_URL } from "@/lib/site";
+import {
+  SITE_NAME,
+  SITE_REGION,
+  absoluteUrl,
+  buildBreadcrumbSchema,
+  buildWebPageSchema,
+  type BreadcrumbItem,
+} from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -17,21 +29,32 @@ export async function generateMetadata({
   const product = await loadProductBySlug(slug);
   if (!product) return {};
 
+  const path = `/product/${encodeURIComponent(product.slug)}`;
+  const title = `Buy ${product.title} in ${SITE_REGION} | Softsinc`;
+  const description = product.description
+    ? trimDescription(product.description)
+    : `Buy ${product.title} in ${SITE_REGION} from Softsinc at an affordable price with flexible plans, instant activation, warranty and WhatsApp support.`;
+  const image = product.images?.[0];
+
   return {
-    title: product.title,
-    description: product.description,
+    title: { absolute: title },
+    description,
+    alternates: {
+      canonical: absoluteUrl(path),
+    },
     openGraph: {
-      title: `${product.title} — Softsinc`,
-      description: product.description,
-      url: `/product/${product.slug}`,
+      title,
+      description,
+      url: absoluteUrl(path),
       type: "website",
-      images: product.images?.[0] ? [{ url: product.images[0] }] : undefined,
+      siteName: SITE_NAME,
+      images: image ? [{ url: image }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
-      title: `${product.title} — Softsinc`,
-      description: product.description,
-      images: product.images?.[0] ? [product.images[0]] : undefined,
+      title,
+      description,
+      images: image ? [image] : undefined,
     },
   };
 }
@@ -42,9 +65,10 @@ export default async function ProductPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const [product, allReviews] = await Promise.all([
+  const [product, allReviews, services] = await Promise.all([
     loadProductBySlug(slug),
     loadReviews(),
+    loadServices(),
   ]);
   if (!product) notFound();
 
@@ -52,8 +76,115 @@ export default async function ProductPage({
     title: product.title,
     slug: product.slug,
   });
+  const relatedServices = pickRelatedServices(services, product);
+  const path = `/product/${encodeURIComponent(product.slug)}`;
+  const breadcrumbs = productBreadcrumbs(product.title, product.slug);
 
-  return <ProductDetailClient product={product} reviews={reviews} />;
+  return (
+    <>
+      <JsonLd
+        id="softsinc-product-jsonld"
+        data={buildProductPageJsonLd({
+          product,
+          path,
+          breadcrumbs,
+        })}
+      />
+      <ProductDetailClient
+        product={product}
+        reviews={reviews}
+        relatedServices={relatedServices}
+      />
+    </>
+  );
+}
+
+function trimDescription(description: string, max = 155): string {
+  const cleaned = description.replace(/\s+/g, " ").trim();
+  if (cleaned.length <= max) return cleaned;
+  return `${cleaned.slice(0, max - 1).trim()}…`;
+}
+
+function productBreadcrumbs(title: string, slug: string): BreadcrumbItem[] {
+  return [
+    { name: "Home", href: "/" },
+    { name: "Services", href: "/services" },
+    { name: title, href: `/product/${encodeURIComponent(slug)}` },
+  ];
+}
+
+function buildProductPageJsonLd({
+  product,
+  path,
+  breadcrumbs,
+}: {
+  product: Awaited<ReturnType<typeof loadProductBySlug>> extends infer P
+    ? NonNullable<P>
+    : never;
+  path: string;
+  breadcrumbs: BreadcrumbItem[];
+}) {
+  const url = absoluteUrl(path);
+  const description = trimDescription(
+    product.description ||
+      `Buy ${product.title} in ${SITE_REGION} from Softsinc with WhatsApp support and guided activation.`
+  );
+
+  const planPrices = product.plans
+    .map((plan) => Number(plan.offerPrice))
+    .filter((price) => Number.isFinite(price) && price > 0);
+  const lowPrice = planPrices.length > 0 ? Math.min(...planPrices) : product.offerPrice;
+  const highPrice =
+    planPrices.length > 0 ? Math.max(...planPrices) : product.originalPrice ?? product.offerPrice;
+  const offerCount = Math.max(planPrices.length, 1);
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": [
+      buildWebPageSchema({
+        path,
+        title: `Buy ${product.title} in ${SITE_REGION} | Softsinc`,
+        description,
+        breadcrumbs,
+      }),
+      buildBreadcrumbSchema(breadcrumbs),
+      {
+        "@type": "Product",
+        "@id": `${url}#product`,
+        name: product.title,
+        description,
+        image: product.images.length > 0 ? product.images : undefined,
+        brand: { "@type": "Brand", name: SITE_NAME },
+        category: product.category,
+        url,
+        offers: {
+          "@type": "AggregateOffer",
+          lowPrice,
+          highPrice,
+          offerCount,
+          priceCurrency: "PKR",
+          availability: "https://schema.org/InStock",
+          url,
+          seller: { "@id": `${SITE_URL}/#organization` },
+        },
+      },
+    ],
+  };
+}
+
+function pickRelatedServices(
+  services: Service[],
+  product: { slug: string; category: Service["category"] },
+  limit = 4
+): Service[] {
+  return services
+    .filter((service) => service.slug !== product.slug)
+    .sort((a, b) => {
+      const aScore = Number(a.category === product.category) + Number(a.popular);
+      const bScore = Number(b.category === product.category) + Number(b.popular);
+      return bScore - aScore;
+    })
+    .slice(0, limit);
 }
 
 /**

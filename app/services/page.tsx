@@ -1,25 +1,46 @@
 import Link from "next/link";
 
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Container } from "@/components/Container";
+import { JsonLd } from "@/components/JsonLd";
 import { ServicesCatalog } from "@/components/ServicesCatalog";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { Card } from "@/components/ui/Card";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { loadServices } from "@/lib/loadServices";
 import { WHATSAPP_LINK } from "@/lib/site";
+import {
+  breadcrumbItemsForRoute,
+  buildPageJsonLd,
+  buildServiceListJsonLd,
+  publicPageMetadata,
+  routeByPath,
+} from "@/lib/seo";
 
-export const metadata = {
-  title: "Services",
-  description:
-    "Browse Softsinc digital tools and subscriptions. Compare offer pricing and order on WhatsApp.",
-};
+export const metadata = publicPageMetadata("/services");
 
 export const dynamic = "force-dynamic";
 
 export default async function ServicesPage() {
+  const route = routeByPath("/services");
   const services = await loadServices();
   return (
     <div>
+      <JsonLd
+        id="softsinc-services-webpage-jsonld"
+        data={buildPageJsonLd(route)}
+      />
+      {services.length > 0 ? (
+        <JsonLd
+          id="softsinc-services-catalog-jsonld"
+          data={buildServiceListJsonLd({
+            services,
+            path: "/services",
+            name: "Softsinc premium subscription services in Pakistan",
+          })}
+        />
+      ) : null}
+      <Breadcrumbs items={breadcrumbItemsForRoute(route)} className="pt-5" />
       <section className="relative overflow-hidden py-14 sm:py-20">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-ss-bg-soft blur-3xl" />
@@ -31,11 +52,12 @@ export default async function ServicesPage() {
               Premium subscriptions • Tools • Support
             </div>
             <h1 className="mt-5 text-balance text-4xl font-semibold tracking-tight sm:text-5xl">
-              Services
+              Premium Subscription Services in Pakistan
             </h1>
             <p className="mt-4 text-pretty text-lg leading-8 text-ss-text/70">
-              Browse our most requested digital subscriptions and premium tools.
-              Tap WhatsApp to order and get help with setup.
+              Browse Softsinc premium digital subscriptions in Pakistan — AI,
+              design, productivity, learning, business and security tools at
+              affordable prices. Tap WhatsApp to order and get setup help.
             </p>
             <div className="mt-8 flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
               <WhatsAppButton href={WHATSAPP_LINK} />

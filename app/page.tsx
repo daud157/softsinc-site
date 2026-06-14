@@ -3,6 +3,7 @@ import Image from "next/image";
 
 import { Container } from "@/components/Container";
 import { FaqAccordion } from "@/components/FaqAccordion";
+import { JsonLd } from "@/components/JsonLd";
 import { MotionInView } from "@/components/MotionInView";
 import { ServicesCatalog } from "@/components/ServicesCatalog";
 import { TrustBadges } from "@/components/TrustBadges";
@@ -15,10 +16,13 @@ import { HERO_GIRL_DESKTOP_SRC, HERO_GIRL_MOBILE_SRC } from "@/lib/heroImages";
 import { loadReviews } from "@/lib/loadReviews";
 import { loadServices } from "@/lib/loadServices";
 import { WHATSAPP_LINK } from "@/lib/site";
+import { buildPageJsonLd, publicPageMetadata, routeByPath } from "@/lib/seo";
 
+export const metadata = publicPageMetadata("/");
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
+  const route = routeByPath("/");
   const [reviews, services] = await Promise.all([
     loadReviews(),
     loadServices(),
@@ -26,6 +30,7 @@ export default async function Home() {
 
   return (
     <div>
+      <JsonLd id="softsinc-home-webpage-jsonld" data={buildPageJsonLd(route)} />
       {/* Hero */}
       <section className="relative overflow-hidden bg-[#FAF9FF] dark:bg-ss-bg">
         <div className="pointer-events-none absolute inset-0 -z-10">

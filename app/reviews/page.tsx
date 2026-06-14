@@ -1,24 +1,34 @@
 import type { Metadata } from "next";
 
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Container } from "@/components/Container";
+import { JsonLd } from "@/components/JsonLd";
 import { ReviewsGallery } from "@/components/ReviewsGallery";
 import { TrustBadges } from "@/components/TrustBadges";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { loadReviews } from "@/lib/loadReviews";
+import {
+  breadcrumbItemsForRoute,
+  buildPageJsonLd,
+  publicPageMetadata,
+  routeByPath,
+} from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Reviews",
-  description:
-    "Real customer reviews for Softsinc services, support, and activation experience.",
-};
+export const metadata: Metadata = publicPageMetadata("/reviews");
 
 export const dynamic = "force-dynamic";
 
 export default async function ReviewsPage() {
+  const route = routeByPath("/reviews");
   const reviews = await loadReviews();
 
   return (
     <div className="relative overflow-hidden">
+      <JsonLd
+        id="softsinc-reviews-webpage-jsonld"
+        data={buildPageJsonLd(route)}
+      />
+      <Breadcrumbs items={breadcrumbItemsForRoute(route)} className="pt-5" />
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-44 left-1/2 h-[560px] w-[560px] -translate-x-1/2 rounded-full bg-ss-bg-soft blur-3xl" />
         <div className="absolute -bottom-48 right-[-140px] h-[620px] w-[620px] rounded-full bg-ss-bg-soft blur-3xl" />

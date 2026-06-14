@@ -72,7 +72,7 @@ export function ProductCard({
                 <div className="relative h-full w-full">
                   <Image
                     src={product.logoUrl}
-                    alt={`${product.title} logo`}
+                    alt={`${product.title} subscription from Softsinc`}
                     fill
                     sizes="(min-width: 1024px) 220px, (min-width: 640px) 30vw, 50vw"
                     className="object-contain"

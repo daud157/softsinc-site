@@ -1,18 +1,31 @@
 import Link from "next/link";
 
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Container } from "@/components/Container";
+import { JsonLd } from "@/components/JsonLd";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { Card } from "@/components/ui/Card";
 import { SectionHeading } from "@/components/ui/SectionHeading";
 import { WHATSAPP_LINK } from "@/lib/site";
+import {
+  breadcrumbItemsForRoute,
+  buildPageJsonLd,
+  publicPageMetadata,
+  routeByPath,
+} from "@/lib/seo";
 
-export const metadata = {
-  title: "Contact",
-};
+export const metadata = publicPageMetadata("/contact");
 
 export default function ContactPage() {
+  const route = routeByPath("/contact");
+
   return (
     <div>
+      <JsonLd
+        id="softsinc-contact-webpage-jsonld"
+        data={buildPageJsonLd(route)}
+      />
+      <Breadcrumbs items={breadcrumbItemsForRoute(route)} className="pt-5" />
       <section className="relative overflow-hidden py-14 sm:py-20">
         <div className="pointer-events-none absolute inset-0 -z-10">
           <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-ss-bg-soft blur-3xl" />

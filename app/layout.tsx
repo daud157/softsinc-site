@@ -8,28 +8,36 @@ import { FloatingWhatsApp } from "@/components/FloatingWhatsApp";
 import { PageLoad } from "@/components/PageLoad";
 import { getSiteSettings } from "@/lib/loadSiteSettings";
 import { AppProviders } from "@/components/providers/AppProviders";
+import { JsonLd } from "@/components/JsonLd";
+import {
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  absoluteUrl,
+  buildRootJsonLd,
+} from "@/lib/seo";
+import { SITE_URL } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: {
-    default: "Softsinc — Premium Digital Tools",
+    default: "Softsinc | Premium Digital Tools and Subscriptions",
     template: "%s — Softsinc",
   },
-  description:
-    "Premium digital subscriptions and tools at affordable prices. Trusted access with reliable support and warranty.",
-  metadataBase: new URL("https://softsinc.com"),
+  description: SITE_DESCRIPTION,
+  metadataBase: new URL(SITE_URL),
+  alternates: {
+    canonical: absoluteUrl("/"),
+  },
   openGraph: {
-    title: "Softsinc — Premium Digital Tools",
-    description:
-      "Premium digital subscriptions and tools at affordable prices. Trusted access with reliable support and warranty.",
-    url: "https://softsinc.com",
-    siteName: "Softsinc",
+    title: "Softsinc | Premium Digital Tools and Subscriptions",
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: SITE_NAME,
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Softsinc — Premium Digital Tools",
-    description:
-      "Premium digital subscriptions and tools at affordable prices. Trusted access with reliable support and warranty.",
+    title: "Softsinc | Premium Digital Tools and Subscriptions",
+    description: SITE_DESCRIPTION,
   },
 };
 
@@ -50,27 +58,6 @@ const THEME_INIT = `
   } catch(e) {}
 })();`;
 
-const SITE_JSON_LD = JSON.stringify({
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebSite",
-      "@id": "https://softsinc.com/#website",
-      url: "https://softsinc.com",
-      name: "Softsinc",
-      description:
-        "Premium digital subscriptions and tools at affordable prices. Trusted access with reliable support and warranty.",
-      publisher: { "@id": "https://softsinc.com/#organization" },
-    },
-    {
-      "@type": "Organization",
-      "@id": "https://softsinc.com/#organization",
-      name: "Softsinc",
-      url: "https://softsinc.com",
-    },
-  ],
-});
-
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -88,12 +75,7 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{ __html: THEME_INIT }}
           suppressHydrationWarning
         />
-        <script
-          id="softsinc-jsonld"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: SITE_JSON_LD }}
-          suppressHydrationWarning
-        />
+        <JsonLd id="softsinc-root-jsonld" data={buildRootJsonLd(logo)} />
       </head>
       <body className="min-h-full flex flex-col bg-ss-bg text-ss-text">
         <AppProviders>

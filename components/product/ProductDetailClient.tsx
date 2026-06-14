@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { ProductLogoTile } from "@/components/ProductLogoTile";
+import { ProductCard } from "@/components/ProductCard";
 import { Container } from "@/components/Container";
 import { useMoney } from "@/components/providers/CurrencyProvider";
 import { FaqAccordion } from "@/components/FaqAccordion";
@@ -18,6 +19,7 @@ import { fadeUp, staggerContainer } from "@/lib/animations";
 import type { Product } from "@/data/services";
 import type { ApiPlan } from "@/data/products";
 import type { ReviewItem } from "@/data/reviews";
+import type { Service } from "@/lib/services";
 import { CURRENCY_FLAGS, type CurrencyCode } from "@/lib/currency";
 import { SITE_URL, buildWhatsAppPrefillUrl } from "@/lib/site";
 
@@ -183,9 +185,11 @@ function ProductCurrencySwitch({
 export function ProductDetailClient({
   product,
   reviews = [],
+  relatedServices = [],
 }: {
   product: Product;
   reviews?: ReviewItem[];
+  relatedServices?: Service[];
 }) {
   const { format, currency, cycleCurrency } = useMoney();
   const heroImage = product.images?.[0] ?? "";
@@ -325,22 +329,29 @@ export function ProductDetailClient({
 
       <Container className="py-4 sm:py-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
-            <Link href="/" className="hover:text-zinc-800 dark:hover:text-zinc-200">
-              Home
-            </Link>
-            <span aria-hidden="true">/</span>
-            <Link href="/services" className="hover:text-zinc-800 dark:hover:text-zinc-200">
-              Services
-            </Link>
-            <span aria-hidden="true">/</span>
-            <span
-              className="min-w-0 truncate font-medium text-zinc-700 dark:text-zinc-300"
-              title={product.title}
-            >
-              {breadcrumbTitle(product.title)}
-            </span>
-          </div>
+          <nav aria-label="Breadcrumb">
+            <ol className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-zinc-500 dark:text-zinc-400">
+              <li>
+                <Link href="/" className="hover:text-zinc-800 dark:hover:text-zinc-200">
+                  Home
+                </Link>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li>
+                <Link href="/services" className="hover:text-zinc-800 dark:hover:text-zinc-200">
+                  Services
+                </Link>
+              </li>
+              <li aria-hidden="true">/</li>
+              <li
+                aria-current="page"
+                className="min-w-0 truncate font-medium text-zinc-700 dark:text-zinc-300"
+                title={product.title}
+              >
+                {breadcrumbTitle(product.title)}
+              </li>
+            </ol>
+          </nav>
           <button
             type="button"
             onClick={() => void handleShareProduct()}
@@ -363,7 +374,7 @@ export function ProductDetailClient({
                 <div className="relative h-full min-h-[200px] w-full sm:min-h-[240px]">
                   <Image
                     src={activeImg}
-                    alt={`${product.title} preview`}
+                    alt={`${product.title} subscription — buy from Softsinc`}
                     fill
                     sizes="(max-width: 1024px) 100vw, 600px"
                     className="object-contain"
@@ -787,6 +798,27 @@ export function ProductDetailClient({
               >
                 View all reviews
               </Link>
+            </div>
+          </motion.div>
+        ) : null}
+
+        {relatedServices.length > 0 ? (
+          <motion.div
+            className="mt-14"
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "0px 0px 100px 0px" }}
+          >
+            <SectionHeading
+              eyebrow="Related services"
+              title="Explore similar tools"
+              subtitle={`More Softsinc services related to ${product.category.toLowerCase()} and digital productivity.`}
+            />
+            <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 lg:grid-cols-4">
+              {relatedServices.map((service) => (
+                <ProductCard key={service.slug} product={service} />
+              ))}
             </div>
           </motion.div>
         ) : null}

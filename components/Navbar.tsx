@@ -185,6 +185,35 @@ export function Navbar({ siteLogoUrl }: { siteLogoUrl?: string | null }) {
               <NavbarBrandMark siteLogoUrl={siteLogoUrl} variant="product" />
               <NavbarWordmark compact />
             </Link>
+            <nav
+              className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 px-2 md:flex lg:gap-1"
+              aria-label="Main navigation"
+            >
+              {NAV_LINKS.map((l) => {
+                const active =
+                  pathname === l.href ||
+                  (l.href === "/services" && pathname?.startsWith("/product/"));
+                return (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    className={cn(
+                      "relative rounded-full px-3 py-2 text-sm font-semibold text-ss-text/80 transition-colors hover:text-ss-text lg:px-4",
+                      active && "text-ss-text"
+                    )}
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="nav-pill"
+                        className="absolute inset-0 -z-10 rounded-full bg-ss-bg-soft ring-1 ring-ss-primary/10"
+                        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      />
+                    )}
+                    {l.label}
+                  </Link>
+                );
+              })}
+            </nav>
             <div className="flex min-w-0 shrink-0 items-center justify-end gap-0.5 sm:gap-1 md:gap-1.5 lg:gap-2">
               <ThemeToggle />
               <Link

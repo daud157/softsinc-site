@@ -7,7 +7,7 @@ export const WHATSAPP_LINK = `https://wa.me/${WHATSAPP_NUMBER}`;
 export const SITE_URL =
   (typeof process !== "undefined" &&
     process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "")) ||
-  "https://softsinc.com";
+  "https://softsinc.tech";
 
 /** Build a wa.me URL that opens WhatsApp with a prefilled message. */
 export function buildWhatsAppPrefillUrl(message: string): string {
